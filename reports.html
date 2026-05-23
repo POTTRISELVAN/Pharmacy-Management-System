@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reports - PharmaCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-clinic-medical"></i>
+            <h2>PharmaCare</h2>
+        </div>
+        <nav>
+            <a href="index.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="medicine.html" class="nav-item"><i class="fas fa-pills"></i> Medicine Master</a>
+            <a href="stock.html" class="nav-item"><i class="fas fa-boxes"></i> Stock Management</a>
+            <a href="billing.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i> Billing</a>
+            <a href="reports.html" class="nav-item active"><i class="fas fa-chart-bar"></i> Reports</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h1><i class="fas fa-chart-bar"></i> Reports</h1>
+        </div>
+
+        <!-- Report Cards -->
+        <div class="stats-grid" style="padding:25px;">
+            <div class="stat-card blue" style="cursor:pointer;" onclick="loadSalesReport()">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <div>
+                    <h3>Sales</h3>
+                    <p>Daily Sales Report</p>
+                </div>
+            </div>
+            <div class="stat-card orange" style="cursor:pointer;" onclick="loadLowStock()">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <h3>Low Stock</h3>
+                    <p>Stock Alert Report</p>
+                </div>
+            </div>
+            <div class="stat-card red" style="cursor:pointer;" onclick="loadExpiryReport()">
+                <i class="fas fa-calendar-times"></i>
+                <div>
+                    <h3>Expiry</h3>
+                    <p>Expiring Medicines</p>
+                </div>
+            </div>
+            <div class="stat-card green" style="cursor:pointer;" onclick="loadAllBills()">
+                <i class="fas fa-list"></i>
+                <div>
+                    <h3>All Bills</h3>
+                    <p>Complete Bill List</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Table -->
+        <div class="card" style="margin:0 25px 25px;">
+            <div class="card-header">
+                <h3 id="reportTitle">Select a Report</h3>
+            </div>
+            <table class="data-table">
+                <thead id="reportHead"></thead>
+                <tbody id="reportTable">
+                    <tr><td style="text-align:center;padding:30px;color:#999;">Click any report card above</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+    function loadSalesReport() {
+        document.getElementById('reportTitle').textContent = 'Daily Sales Report';
+        fetch('api/bill')
+            .then(res => res.json())
+            .then(bills => {
+                document.getElementById('reportHead').innerHTML = `
+                    <tr>
+                        <th>Bill No</th><th>Customer</th>
+                        <th>Total</th><th>Payment</th><th>Date</th>
+                    </tr>`;
+                document.getElementById('reportTable').innerHTML = bills.map(b => `
+                    <tr>
+                        <td>${b.billNumber}</td>
+                        <td>${b.customerName || 'Walk-in'}</td>
+                        <td>₹${b.totalAmount}</td>
+                        <td>${b.paymentMode}</td>
+                        <td>${new Date(b.billDate).toLocaleDateString('en-IN')}</td>
+                    </tr>`).join('');
+            });
+    }
+
+    function loadLowStock() {
+        document.getElementById('reportTitle').textContent = 'Low Stock Report';
+        fetch('api/stock')
+            .then(res => res.json())
+            .then(data => {
+                const low = data.filter(s => s.quantity < 10);
+                document.getElementById('reportHead').innerHTML = `
+                    <tr>
+                        <th>Medicine</th><th>Batch</th>
+                        <th>Quantity</th><th>Expiry</th>
+                    </tr>`;
+                document.getElementById('reportTable').innerHTML = low.map(s => `
+                    <tr>
+                        <td>${s.medicineName}</td>
+                        <td>${s.batchNumber}</td>
+                        <td><span class="badge badge-danger">${s.quantity}</span></td>
+                        <td>${s.expiryDate}</td>
+                    </tr>`).join('');
+            });
+    }
+
+    function loadExpiryReport() {
+        document.getElementById('reportTitle').textContent = 'Expiry Report (Next 30 Days)';
+        fetch('api/stock')
+            .then(res => res.json())
+            .then(data => {
+                const today = new Date();
+                const in30 = new Date();
+                in30.setDate(today.getDate() + 30);
+                const expiring = data.filter(s => new Date(s.expiryDate) <= in30);
+                document.getElementById('reportHead').innerHTML = `
+                    <tr>
+                        <th>Medicine</th><th>Batch</th>
+                        <th>Expiry Date</th><th>Quantity</th>
+                    </tr>`;
+                document.getElementById('reportTable').innerHTML = expiring.map(s => `
+                    <tr>
+                        <td>${s.medicineName}</td>
+                        <td>${s.batchNumber}</td>
+                        <td><span class="badge badge-warning">${s.expiryDate}</span></td>
+                        <td>${s.quantity}</td>
+                    </tr>`).join('');
+            });
+    }
+
+    function loadAllBills() {
+        loadSalesReport();
+    }
+    </script>
+</body>
+</html>

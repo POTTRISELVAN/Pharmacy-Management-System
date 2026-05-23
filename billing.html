@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Billing - PharmaCares</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-clinic-medical"></i>
+            <h2>PharmaCare</h2>
+        </div>
+        <nav>
+            <a href="index.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="medicine.html" class="nav-item"><i class="fas fa-pills"></i> Medicine Master</a>
+            <a href="stock.html" class="nav-item"><i class="fas fa-boxes"></i> Stock Management</a>
+            <a href="billing.html" class="nav-item active"><i class="fas fa-file-invoice-dollar"></i> Billing</a>
+            <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h1><i class="fas fa-file-invoice-dollar"></i> New Bill</h1>
+            <span id="billNo" style="font-weight:bold; color:#1a237e;"></span>
+        </div>
+
+        <div class="billing-layout">
+            <!-- Left: Item Entry -->
+            <div>
+                <!-- Customer Info -->
+                <div class="card" style="margin-bottom:15px;">
+                    <div class="card-header"><h3>Customer Details</h3></div>
+                    <div class="form-grid" style="grid-template-columns: repeat(2,1fr);">
+                        <div class="form-group">
+                            <label>Customer Name</label>
+                            <input type="text" id="customerName" placeholder="Walk-in Customer">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="text" id="customerPhone" placeholder="9876543210">
+                        </div>
+                        <div class="form-group">
+                            <label>Doctor Name</label>
+                            <input type="text" id="doctorName" placeholder="Dr. Name">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medicine Search & Add -->
+                <div class="card" style="margin-bottom:15px;">
+                    <div class="card-header"><h3>Add Items</h3></div>
+                    <div style="padding:15px;">
+                        <div style="display:grid; grid-template-columns:1fr auto auto auto; gap:10px; align-items:end;">
+                            <div class="form-group">
+                                <label>Search Medicine</label>
+                                <input type="text" id="medicineSearch" placeholder="Type medicine name..."
+                                    oninput="searchForBilling(this.value)" autocomplete="off">
+                                <div id="searchDropdown" style="position:relative;">
+                                    <div id="searchResults" style="display:none; position:absolute; background:white; border:1px solid #ddd; border-radius:8px; width:100%; max-height:200px; overflow-y:auto; z-index:999; box-shadow:0 4px 10px rgba(0,0,0,0.1);"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Qty</label>
+                                <input type="number" id="itemQty" value="1" min="1" style="width:80px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Price</label>
+                                <input type="number" id="itemPrice" placeholder="0.00" style="width:100px;">
+                            </div>
+                            <button class="btn btn-success" onclick="addItemToBill()" style="height:42px;">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        </div>
+                        <div id="selectedMedicineInfo" style="display:none; margin-top:8px; padding:8px 12px; background:#e8f5e9; border-radius:8px; font-size:13px;"></div>
+                    </div>
+
+                    <table class="bill-items-table" style="margin:0 15px 15px; width:calc(100% - 30px);">
+                        <thead>
+                            <tr style="background:#f5f7ff;">
+                                <th>#</th>
+                                <th>Medicine</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>GST%</th>
+                                <th>Total</th>
+                                <th>✕</th>
+                            </tr>
+                        </thead>
+                        <tbody id="billItemsBody">
+                            <tr id="emptyRow">
+                                <td colspan="7" style="text-align:center; padding:20px; color:#999;">No items added</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right: Summary & Payment -->
+            <div>
+                <div class="card">
+                    <div class="card-header"><h3>Bill Summary</h3></div>
+                    <div style="padding:15px;">
+                        <div class="bill-summary">
+                            <div class="bill-summary-row">
+                                <span>Subtotal</span>
+                                <span>₹<span id="subtotal">0.00</span></span>
+                            </div>
+                            <div class="bill-summary-row">
+                                <span>GST Amount</span>
+                                <span>₹<span id="gstAmount">0.00</span></span>
+                            </div>
+                            <div class="bill-summary-row">
+                                <span>Discount</span>
+                                <div>
+                                    <input type="number" id="discount" value="0" min="0"
+                                        style="width:70px; padding:4px; border:1px solid #ddd; border-radius:4px;"
+                                        oninput="calculateTotal()"> ₹
+                                </div>
+                            </div>
+                            <div class="bill-total">
+                                <span>Total</span>
+                                <span>₹<span id="totalAmount">0.00</span></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top:15px;">
+                            <label>Payment Mode</label>
+                            <select id="paymentMode">
+                                <option value="Cash">Cash</option>
+                                <option value="UPI">UPI</option>
+                                <option value="Card">Card</option>
+                                <option value="Credit">Credit</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-top:10px;">
+                            <label>Cash Received</label>
+                            <input type="number" id="cashReceived" placeholder="0.00" oninput="calcChange()">
+                        </div>
+
+                        <div id="changeDiv" style="display:none; margin-top:8px; padding:10px; background:#e3f2fd; border-radius:8px; text-align:center; font-weight:bold; color:#1a237e;">
+                            Change: ₹<span id="changeAmount">0.00</span>
+                        </div>
+
+                        <button class="btn btn-success" style="width:100%; margin-top:15px; padding:12px;" onclick="saveBill()">
+                            <i class="fas fa-check-circle"></i> Generate Bill
+                        </button>
+                        <button class="btn" style="width:100%; margin-top:8px; padding:12px; background:#eee;" onclick="clearBill()">
+                            <i class="fas fa-redo"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/billing.js"></script>
+</body>
+</html>

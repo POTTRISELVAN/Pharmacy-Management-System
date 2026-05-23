@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Medicine Master - PharmaCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-clinic-medical"></i>
+            <h2>PharmaCare</h2>
+        </div>
+        <nav>
+            <a href="index.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="medicine.html" class="nav-item active"><i class="fas fa-pills"></i> Medicine Master</a>
+            <a href="stock.html" class="nav-item"><i class="fas fa-boxes"></i> Stock Management</a>
+            <a href="billing.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i> Billing</a>
+            <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h1><i class="fas fa-pills"></i> Medicine Master</h1>
+            <button class="btn btn-primary" onclick="showAddForm()">
+                <i class="fas fa-plus"></i> Add Medicine
+            </button>
+        </div>
+
+        <div id="alertBox" class="alert"></div>
+
+        <!-- Add Form -->
+        <div class="card" id="addForm" style="display:none; margin: 20px 25px;">
+            <div class="card-header">
+                <h3>Add New Medicine</h3>
+                <button class="modal-close" onclick="hideAddForm()">✕</button>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Medicine Name *</label>
+                    <input type="text" id="medicineName" placeholder="e.g., Paracetamol 500mg">
+                </div>
+                <div class="form-group">
+                    <label>Generic Name</label>
+                    <input type="text" id="genericName" placeholder="e.g., Acetaminophen">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="category">
+                        <option value="">Select</option>
+                        <option>Tablet</option>
+                        <option>Syrup</option>
+                        <option>Injection</option>
+                        <option>Capsule</option>
+                        <option>Cream/Ointment</option>
+                        <option>Drops</option>
+                        <option>Inhaler</option>
+                        <option>Surgical</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Manufacturer</label>
+                    <input type="text" id="manufacturer" placeholder="e.g., Cipla Ltd">
+                </div>
+                <div class="form-group">
+                    <label>Unit</label>
+                    <select id="unit">
+                        <option>Tablet</option>
+                        <option>Strip</option>
+                        <option>Bottle</option>
+                        <option>Tube</option>
+                        <option>Vial</option>
+                        <option>Piece</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>HSN Code</label>
+                    <input type="text" id="hsnCode" placeholder="e.g., 3004">
+                </div>
+                <div class="form-group">
+                    <label>GST %</label>
+                    <select id="gstPercent">
+                        <option value="0">0%</option>
+                        <option value="5">5%</option>
+                        <option value="12">12%</option>
+                        <option value="18">18%</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Rack Number</label>
+                    <input type="text" id="rackNumber" placeholder="e.g., A-12">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-success" onclick="addMedicine()">
+                    <i class="fas fa-save"></i> Save Medicine
+                </button>
+                <button class="btn" onclick="hideAddForm()" style="background:#eee">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Search & Table -->
+        <div class="card" style="margin: 0 25px 25px;">
+            <div class="card-header">
+                <h3>Medicine List</h3>
+                <input type="text" id="searchInput" placeholder="🔍 Search medicine..."
+                    style="padding:8px 12px; border:1px solid #ddd; border-radius:8px; width:250px;"
+                    oninput="searchMedicine(this.value)">
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Medicine Name</th>
+                        <th>Generic Name</th>
+                        <th>Category</th>
+                        <th>Manufacturer</th>
+                        <th>Unit</th>
+                        <th>GST</th>
+                        <th>Rack</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="medicineTable">
+                    <tr><td colspan="9" style="text-align:center; padding:30px;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/medicine.js"></script>
+</body>
+</html>
